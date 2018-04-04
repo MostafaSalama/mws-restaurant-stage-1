@@ -1,7 +1,7 @@
 const path = require('path');
 const gulp = require('gulp');
 const bs = require('browser-sync').create();
-
+const swPrecache = require('sw-precache');
 // files paths
 const paths = {
     css: 'css/styles.css',
@@ -10,7 +10,38 @@ const paths = {
 };
 
 gulp.task('default', ['serve']);
+gulp.task('gen-sw', () => {
+    const swOptions = {
+        staticFileGlobs: [
+            './index.html',
+            './restaurant.html',
+            './data/*.json',
+            './img/*.{png,svg,gif,jpg}',
+            './js/*.js',
+            './css/*.css',
+            'https://maps.googleapis.com/maps/api/js?key=AIzaSyBucMk0R348mlbdtMUC_G6pkY-AGEiOS90&libraries=places&callback=initMap',
+            'https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css',
+        ],
+        stripPrefix: '.',
+        runtimeCaching: [
+            {
+                urlPattern: /^https:\/\/maps.googleapis.com/,
+                handler: 'networkFirst'
+            }
+        ]
+    };
+    return swPrecache.write(`${path.join(__dirname,'sw.js')}`, swOptions);
+})
+gulp.task('generate-service-worker', function(callback) {
+    var path = require('path');
+    var swPrecache = require('sw-precache');
+    var rootDir = 'app';
 
+    swPrecache.write(path.join(rootDir, 'service-worker.js'), {
+        staticFileGlobs: [rootDir + '/**/*.{js,html,css,png,jpg,gif}'],
+        stripPrefix: rootDir
+    }, callback);
+});
 gulp.task('serve', ['html', 'css', 'js'], () => {
     // initial server with port 8000
     bs.init({
@@ -23,7 +54,7 @@ gulp.task('serve', ['html', 'css', 'js'], () => {
     gulp.watch(paths.css, ['css']);
 });
 gulp.task('css', () => {
-    gulp.watch(paths.css).on('change',bs.reload) ;
+    gulp.watch(paths.css).on('change', bs.reload);
 });
 
 gulp.task('html', () => {

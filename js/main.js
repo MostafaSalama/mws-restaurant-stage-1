@@ -8,8 +8,17 @@ var markers = [];
 document.addEventListener('DOMContentLoaded', event => {
     fetchNeighborhoods();
     fetchCuisines();
+    registerServiceWorker() ;
 });
+/*
+    register service worker function
+ */
+const registerServiceWorker = () => {
 
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').then(req => {});
+    }
+};
 /**
  * Fetch all neighborhoods and set their HTML.
  */
@@ -145,7 +154,9 @@ createRestaurantHTML = restaurant => {
 
     const image = document.createElement('img');
     image.className = 'restaurant-img';
-    image.alt = `${restaurant.name} restaurant, address ${restaurant.address}, ${restaurant.cuisine_type} cuisine`;
+    image.alt = `${restaurant.name} restaurant, address ${
+        restaurant.address
+    }, ${restaurant.cuisine_type} cuisine`;
     image.src = DBHelper.imageUrlForRestaurant(restaurant);
     li.append(image);
 
