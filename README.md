@@ -24,5 +24,11 @@ In a terminal, check the version of Python you have: `python -V`. If you have Py
 
 Most of the code in this project has been written to the ES6 JavaScript specification for compatibility with modern web browsers and future proofing JavaScript code. As much as possible, try to maintain use of ES6 in any additional JavaScript you write. 
 
-
+## Note About my project 
+ I used browser-sync to run a localhost server and I used **gulp** to automate it 
+ * **npm install** to install dev dependencies in packge.json
+ * **npm start** will run the local server on port 8000 
+__________________________________________________________________
+you can see the project live in this link 
+https://udacity-restaurant-p1.firebaseapp.com/ 
 
