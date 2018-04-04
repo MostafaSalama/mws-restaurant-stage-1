@@ -129,11 +129,30 @@ nav h1 a {
 /* ====================== Restaurant Filtering ====================== */
 .filter-options {
     width: 100%;
-    height: 50px;
+    padding: 20px 0;
     background-color: #3397db;
     align-items: center;
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: row;
+}
+.options{
+    margin-top: 10px;
+    margin-left: 10px;
+    display: flex;
+}
+@media screen and (max-width: 500px) {
+    .filter-options{
+        flex-direction: column;
+    }
+    .options{
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        align-items: center;
+    }
+    .filter-options .options select{
+            width: 80%;
+    }
 }
 .filter-options h2 {
     color: white;
