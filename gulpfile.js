@@ -19,16 +19,10 @@ gulp.task('gen-sw', () => {
             './img/*.{png,svg,gif,jpg}',
             './js/*.js',
             './css/*.css',
-            'https://maps.googleapis.com/maps/api/js?key=AIzaSyBucMk0R348mlbdtMUC_G6pkY-AGEiOS90&libraries=places&callback=initMap',
             'https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css',
         ],
         stripPrefix: '.',
-        runtimeCaching: [
-            {
-                urlPattern: /^https:\/\/maps.googleapis.com/,
-                handler: 'networkFirst'
-            }
-        ]
+       
     };
     return swPrecache.write(`${path.join(__dirname,'sw.js')}`, swOptions);
 })
