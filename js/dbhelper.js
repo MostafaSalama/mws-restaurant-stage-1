@@ -6,8 +6,29 @@ class DBHelper {
      * Database URL.
      * Change this to restaurants.json file location on your server.
      */
+    static get DB_NAME() {
+        return 'restaurants-db';
+    }
+    static get OBJECT_STORE_NAME() {
+        return 'restaurants';
+    }
+    static openDB() {
+        // open DB
+
+        return idb.open(DBHelper.DB_NAME, 1, upgradedDB => {
+            // create restaurants store
+            if (
+                !upgradedDB.objectStoreNames.contains(
+                    DBHelper.OBJECT_STORE_NAME
+                )
+            ) {
+                upgradedDB.createObjectStore(DBHelper.OBJECT_STORE_NAME, {
+                    keyPath: 'id'
+                });
+            }
+        });
+    }
     static get DATABASE_URL() {
-        const port = 8000; // Change this to your server port
         // new url for the data
         return `http://localhost:1337/restaurants`;
     }
@@ -17,18 +38,55 @@ class DBHelper {
      */
     static fetchRestaurants(callback) {
         //fetching the data with fetch API
+        const my_db = DBHelper.openDB();
+        my_db
+            .then(db => {
+                const tx = db.transaction(
+                    DBHelper.OBJECT_STORE_NAME,
+                    'readwrite'
+                );
+                const restaurantsStore = tx.objectStore(
+                    DBHelper.OBJECT_STORE_NAME
+                );
+                // check if all restaurants exist
+                restaurantsStore.count().then(numOfRecords => {
+                    // all data already exist
+                    if (numOfRecords === 10) {
+                        restaurantsStore
+                            .getAll()
+                            .then(restaurants => {
+                                callback(null, restaurants);
+                            })
+                            .catch(error => {
+                                callback(error.message, null);
+                            });
+                        return;
+                    }
+                    // fetch if the  restaurants not complete
+                    DBHelper.fetchRestaurantsFromNetwork(
+                        restaurantsStore,
+                        callback
+                    );
+                });
+                return tx.complete;
+            })
+            .then(() => console.log('all operations completed'));
+    }
+    // fetch restaurants data from network
+    static fetchRestaurantsFromNetwork(store, callback) {
         fetch(DBHelper.DATABASE_URL)
             .then(response => {
-                // the request success
+                // response with the data
                 if (response.ok) {
                     return response.json();
                 }
                 return Promise.reject(
-                    `Request failed. Returned status of ${response.status}`
+                    `error , returned with status code of ${response.status}`
                 );
             })
             .then(restaurants => {
                 callback(null, restaurants);
+                DBHelper.saveRestaurantsOnDB(store, restaurants);
             })
             .catch(error => {
                 callback(error, null);
@@ -36,18 +94,67 @@ class DBHelper {
     }
 
     /**
+     * store restaurants on DB Store
+     * @param store {IDBObjectStore} store to store data on it
+     * @param restaurants  array of all restaurants to store in DB
+     */
+    static saveRestaurantsOnDB(store, restaurants) {
+        restaurants.forEach(restaurant => {
+            // check if values already exist
+            store.get(restaurant.id).then(value => {
+                if (value) return;
+                store.add(restaurant);
+            });
+        });
+    }
+
+    /**
      * Fetch a restaurant by its ID.
      */
     static fetchRestaurantById(id, callback) {
         // fetch all restaurants with proper error handling.
-        fetch(`${DBHelper.DATABASE_URL}/${id}`).then(res=>{
-            if(res.ok) return res.json() ;
-            return Promise.reject(`error no restaurant with ${id} id `) ;
-        }).then(restaurant=>callback(null,restaurant))
-            .catch(error=>callback(error,restaurant));
-
+        this.openDB().then(db => {
+            const tx = db.transaction(DBHelper.OBJECT_STORE_NAME);
+            const restaurantsStore = tx.objectStore(DBHelper.OBJECT_STORE_NAME);
+            console.log(restaurantsStore);
+            // the passed id is string so we parse it Int
+            restaurantsStore
+                .get(parseInt(id))
+                .then(restaurant => {
+                    // already on db
+                    if (restaurant) {
+                        console.log('found the restaurant');
+                        callback(null, restaurant);
+                        return;
+                    }
+                    //fetching form server if not exist
+                    DBHelper.fetchRestaurantFromNetwork(
+                        restaurantsStore,
+                        tx,
+                        id,
+                        callback
+                    );
+                })
+                .catch(error => {
+                    callback(error, null);
+                });
+            tx.complete;
+        });
     }
-
+    // fetch restaurant with specified Id form network
+    static fetchRestaurantFromNetwork(store, tx, id, callback) {
+        fetch(`${DBHelper.DATABASE_URL}/${id}`)
+            .then(res => {
+                if (res.ok) return res.json();
+                return Promise.reject(`error no restaurant with ${id} id `);
+            })
+            .then(restaurant => {
+                callback(null, restaurant);
+                store.add(restaurant);
+            })
+            .catch(error => callback(error, restaurant));
+        return tx.complete;
+    }
     /**
      * Fetch restaurants by a cuisine type with proper error handling.
      */
