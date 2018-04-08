@@ -36,61 +36,44 @@ class DBHelper {
     /**
      * Fetch all restaurants.
      */
-    static fetchRestaurants(callback) {
+    static async fetchRestaurants(callback) {
         //fetching the data with fetch API
-        const my_db = DBHelper.openDB();
-        my_db
-            .then(db => {
-                const tx = db.transaction(
-                    DBHelper.OBJECT_STORE_NAME,
-                    'readwrite'
-                );
-                const restaurantsStore = tx.objectStore(
-                    DBHelper.OBJECT_STORE_NAME
-                );
-                // check if all restaurants exist
-                restaurantsStore.count().then(numOfRecords => {
-                    // all data already exist
-                    if (numOfRecords === 10) {
-                        restaurantsStore
-                            .getAll()
-                            .then(restaurants => {
-                                callback(null, restaurants);
-                            })
-                            .catch(error => {
-                                callback(error.message, null);
-                            });
-                        return;
-                    }
-                    // fetch if the  restaurants not complete
-                    DBHelper.fetchRestaurantsFromNetwork(
-                        restaurantsStore,
-                        callback
-                    );
-                });
-                return tx.complete;
-            })
-            .then(() => console.log('all operations completed'));
+        try {
+            const my_db = await DBHelper.openDB() ;
+            const tx = my_db.transaction(DBHelper.OBJECT_STORE_NAME,'readwrite') ;
+            const restaurantsStore = tx.objectStore(DBHelper.OBJECT_STORE_NAME);
+            let restaurants = await  restaurantsStore.getAll() ;
+            // if all restaurants exist
+            if(restaurants.length ===10) {
+                console.log('we already stored on DB')
+                callback(null,restaurants)
+                return tx.complete.then(()=>console.log('all operations completed'));
+            }
+            restaurants =  await DBHelper.fetchRestaurantsFromNetwork() ;
+            callback(null,restaurants);
+            await DBHelper.saveRestaurantsOnDB(restaurants);
+        }
+        catch (e) {
+            callback(e,null)
+        }
     }
     // fetch restaurants data from network
-    static fetchRestaurantsFromNetwork(store, callback) {
-        fetch(DBHelper.DATABASE_URL)
-            .then(response => {
-                // response with the data
-                if (response.ok) {
-                    return response.json();
-                }
-                return Promise.reject(
-                    `error , returned with status code of ${response.status}`
-                );
-            })
-            .then(restaurants => {
-                callback(null, restaurants);
-                DBHelper.saveRestaurantsOnDB(store, restaurants);
-            })
-            .catch(error => {
-                callback(error, null);
-            });
+    static async fetchRestaurantsFromNetwork() {
+            try {
+                const response = await window.fetch(DBHelper.DATABASE_URL) ;
+                if (response.ok) return response.json() ;
+                // response may occur but with the wrong status code
+                // that wan't reject the promise
+                return Promise.reject(`error returned with ${response.status} status code`);
+            }
+            // if any error happen while fetching
+            // like internet connectivity or not valid url
+            // reject error
+            catch (e) {
+                return Promise.reject(e);
+            }
+
+
     }
 
     /**
@@ -98,62 +81,63 @@ class DBHelper {
      * @param store {IDBObjectStore} store to store data on it
      * @param restaurants  array of all restaurants to store in DB
      */
-    static saveRestaurantsOnDB(store, restaurants) {
-        restaurants.forEach(restaurant => {
+    static async saveRestaurantsOnDB(restaurants) {
+        const my_db = await DBHelper.openDB() ;
+        const tx = my_db.transaction(DBHelper.OBJECT_STORE_NAME,'readwrite') ;
+        const store = tx.objectStore(DBHelper.OBJECT_STORE_NAME)
+        return   restaurants.forEach( async restaurant => {
             // check if values already exist
-            store.get(restaurant.id).then(value => {
-                if (value) return;
-                store.add(restaurant);
-            });
+            const value = await store.get(restaurant.id) ;
+            if (value) return ;
+            await store.add(restaurant) ;
+
         });
     }
 
     /**
      * Fetch a restaurant by its ID.
      */
-    static fetchRestaurantById(id, callback) {
+    static async fetchRestaurantById(id, callback) {
         // fetch all restaurants with proper error handling.
-        this.openDB().then(db => {
-            const tx = db.transaction(DBHelper.OBJECT_STORE_NAME);
-            const restaurantsStore = tx.objectStore(DBHelper.OBJECT_STORE_NAME);
-            console.log(restaurantsStore);
-            // the passed id is string so we parse it Int
-            restaurantsStore
-                .get(parseInt(id))
-                .then(restaurant => {
-                    // already on db
-                    if (restaurant) {
-                        console.log('found the restaurant');
-                        callback(null, restaurant);
-                        return;
-                    }
-                    //fetching form server if not exist
-                    DBHelper.fetchRestaurantFromNetwork(
-                        restaurantsStore,
-                        tx,
-                        id,
-                        callback
-                    );
-                })
-                .catch(error => {
-                    callback(error, null);
-                });
-            tx.complete;
-        });
+        try{
+            const my_db = await DBHelper.openDB() ;
+            const tx = my_db.transaction(DBHelper.OBJECT_STORE_NAME) ;
+            const restaurantsStore = tx.objectStore(DBHelper.OBJECT_STORE_NAME) ;
+            let restaurant = await restaurantsStore.get(parseInt(id)) ;
+            if (restaurant) {
+                console.log('restaurant stored on DB') ;
+                callback(null,restaurant) ;
+                return tx.complete ;
+            }
+            restaurant = await DBHelper.fetchRestaurantFromNetwork() ;
+            callback(null,restaurant) ;
+
+        }
+        catch (e) {
+            callback(e,null) ;
+        }
+
+
     }
     // fetch restaurant with specified Id form network
-    static fetchRestaurantFromNetwork(store, tx, id, callback) {
-        fetch(`${DBHelper.DATABASE_URL}/${id}`)
-            .then(res => {
-                if (res.ok) return res.json();
-                return Promise.reject(`error no restaurant with ${id} id `);
-            })
-            .then(restaurant => {
-                callback(null, restaurant);
-                store.add(restaurant);
-            })
-            .catch(error => callback(error, restaurant));
-        return tx.complete;
+    static async fetchRestaurantFromNetwork() {
+       try{
+           const my_db = DBHelper.openDB() ;
+           const tx = my_db.transaction(DBHelper.OBJECT_STORE_NAME,'readwrite');
+           const store = tx.objectStore(DBHelper.OBJECT_STORE_NAME) ;
+           const response = await  fetch(`${DBHelper.DATABASE_URL}/${id}`)
+           // if the response is success
+           if(response.ok){
+               store.add(response.json());
+               return response.json() ;
+           }
+           return Promise.reject(`error returned with status ${response.status}`) ;
+       }
+       catch (e) {
+           return Promise.reject(e) ;
+       }
+
+
     }
     /**
      * Fetch restaurants by a cuisine type with proper error handling.
