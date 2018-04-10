@@ -36,12 +36,12 @@
 /* eslint-env worker, serviceworker */
 /* eslint-disable indent, no-unused-vars, no-multiple-empty-lines, max-nested-callbacks, space-before-function-paren, quotes, comma-spacing */
 'use strict';
-
-var precacheConfig = [["/dist/mainIndex-min.js","c1ffa0b64a6552bca933e90eb0b7b46f"],["/dist/mainIndex.js","89350e0ee13cb7859bca4817d9518e59"],["/dist/restaurant-min.js","de248fda96dff24457a30bd153c29715"],["/dist/restaurant.js","877cbc0b9e996c32d4783bbc9cdab0fa"],["/dist/styles.css","c9b78ae767013a537a9832f8cc0b7d0c"],["/icons/favicon.png","7d61f6e2f45e896066f160b58a586b5d"],["/icons/plate-fork-and-knife128x128.png","805af38849d4d7b4d2c3456190bd210d"],["/icons/plate-fork-and-knife152x152.png","cedfe21c3a4226618f969888860cda16"],["/icons/plate-fork-and-knife192x192.png","4b36621ed35076456182da3976873221"],["/icons/plate-fork-and-knife50x50.png","7d61f6e2f45e896066f160b58a586b5d"],["/icons/plate-fork-and-knife512.png","141ce70ef47803445d45abeefc805be4"],["/index.html","4d7d06d84821e02817a36a52a1930572"],["/manifest.json","04a3aacdaa7701603c4dadf6df1f9376"],["/restaurant.html","ca59c4ce30b258cb30ee44f016e2117b"]];
+var restaurants_version = 'v12'
+var precacheConfig = [["/dist/mainIndex.min.js","c1ffa0b64a6552bca933e90eb0b7b46f"],["/dist/mainIndex.js","dff32a964340a5b7f1f7651ed58c19ae"],["/dist/restaurant.min.js","de248fda96dff24457a30bd153c29715"],["/dist/restaurant.js","dae7c62337c11a5370254b9bbaf7bdf0"],["/dist/styles.css","c9b78ae767013a537a9832f8cc0b7d0c"],["/icons/favicon.png","7d61f6e2f45e896066f160b58a586b5d"],["/icons/plate-fork-and-knife128x128.png","805af38849d4d7b4d2c3456190bd210d"],["/icons/plate-fork-and-knife152x152.png","cedfe21c3a4226618f969888860cda16"],["/icons/plate-fork-and-knife192x192.png","4b36621ed35076456182da3976873221"],["/icons/plate-fork-and-knife50x50.png","7d61f6e2f45e896066f160b58a586b5d"],["/icons/plate-fork-and-knife512.png","141ce70ef47803445d45abeefc805be4"],["/img/1.jpg","39c85449fff193cd826b4c236c5d7aa4"],["/img/10.jpg","8cb4b02562b7ff662ba4311385907464"],["/img/2.jpg","f89acd67a8d79c4bcb76420664ff86e1"],["/img/3.jpg","49eba862a130f3d86d782d2645532681"],["/img/4.jpg","ed33db7fdb4bd6626fa35dcdacacc5bd"],["/img/5.jpg","1fa31969a6fc0add80b02d3e700a6532"],["/img/6.jpg","d7582dc048da0e8dc8476c94063ac7d2"],["/img/7.jpg","fd1177c8e7e377ced15ce8ff20789c89"],["/img/8.jpg","d39210c926447ed15042ff31e93b30d3"],["/img/9.jpg","059f1cf7a8a457c8fdceca8b8df209ba"],["/img/Spinner-1s-200px.gif","324455f5416b0b4f13aeb5d6897700cc"],["/index.html","4d7d06d84821e02817a36a52a1930572"],["/manifest.json","04a3aacdaa7701603c4dadf6df1f9376"],["/restaurant.html","ca59c4ce30b258cb30ee44f016e2117b"]];
 var cacheName = 'sw-precache-v3--' + (self.registration ? self.registration.scope : '');
 
 
-var ignoreUrlParametersMatching = [/^utm_/];
+var ignoreUrlParametersMatching = [/^id/];
 
 
 

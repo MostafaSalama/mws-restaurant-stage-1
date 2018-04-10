@@ -5,7 +5,7 @@ const swPreCache = require('sw-precache');
 const concat = require('gulp-concat');
 const imagemin = require('gulp-imagemin');
 const cleanCss = require('gulp-clean-css');
-const uglify = require('gulp-minify');
+const gzip = require('gulp-gzip');
 // files paths
 const paths = {
     css: 'css/styles.css',
@@ -61,20 +61,21 @@ gulp.task('gen-sw', () => {
     const swOptions = {
         staticFileGlobs: [
             './index.html',
-            './restaurant.html*',
-            './dist/*.js',
+            './restaurant.html',
             './dist/*.js',
             './dist/*.css',
             './icons/*',
-            './manifest.json'
+            './manifest.json',
+            './img/*'
         ],
         stripPrefix: '.',
         runtimeCaching: [
             {
                 urlPattern: /^https:\/\/maps\.googleapis\.com/,
                 handler: 'networkFirst'
-            }
-        ]
+            },
+        ],
+            ignoreUrlParametersMatching:[/^id/]
     };
     return swPreCache.write(`${path.join(__dirname, 'sw.js')}`, swOptions);
 });
@@ -85,3 +86,8 @@ gulp.task('mini-images', () => {
         .pipe(imagemin())
         .pipe(gulp.dest('img'));
 });
+gulp.task('gzip',()=>{
+    return gulp.src('./dist/mainIndex.js')
+        .pipe(gzip())
+        .pipe(gulp.dest('public'))
+})

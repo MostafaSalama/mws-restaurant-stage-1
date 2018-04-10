@@ -4,7 +4,8 @@
   "description": "---\r #### _Three Stage Course Material Project - Restaurant Reviews_",
   "main": "index.js",
   "scripts": {
-    "start": "gulp"
+    "start": "gulp",
+    "build": "gulp build"
   },
   "repository": {
     "type": "git",
@@ -22,6 +23,7 @@
     "gulp": "^3.9.1",
     "gulp-clean-css": "^3.9.3",
     "gulp-concat": "^2.6.1",
+    "gulp-gzip": "^1.4.2",
     "gulp-imagemin": "^4.1.0",
     "gulp-minify": "^2.1.0",
     "gulp-uglify": "^3.0.0",
