@@ -14,7 +14,6 @@ class DBHelper {
     }
     static openDB() {
         // open DB
-
         return idb.open(DBHelper.DB_NAME, 1, upgradedDB => {
             // create restaurants store
             if (

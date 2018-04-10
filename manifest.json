@@ -3,6 +3,7 @@
   "name": "Restaurants Reviews",
   "background_color":"#F3F3F3",
   "theme_color":"#9c27b0",
+  "display":"fullscreen",
   "icons": [
     {
       "src": "/icons/plate-fork-and-knife50x50.png",
@@ -23,6 +24,12 @@
       "src": "/icons/plate-fork-and-knife192x192.png",
       "type": "image/png",
       "sizes": "192x192"
+    }
+  ,
+    {
+      "src": "/icons/plate-fork-and-knife512.png",
+      "type": "image/png",
+      "sizes": "512x512"
     }
   ],
   "start_url": "/index.html"
