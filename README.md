@@ -15,4 +15,4 @@ In a terminal, check the version of Python you have: `python -V`. If you have Py
 4. Write code to implement the updates to get this site on its way to being a mobile-ready website.
 
 #### NOTE 
-its better to test the app in **chrome** in **incognito mode **
+its better to test the app in **chrome** in **incognito mode**
