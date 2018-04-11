@@ -46,7 +46,7 @@ class DBHelper {
             if(restaurants.length ===10) {
                 console.log('we already stored on DB')
                 callback(null,restaurants)
-                return tx.complete.then(()=>console.log('all operations completed'));
+                return ;
             }
             restaurants =  await DBHelper.fetchRestaurantsFromNetwork() ;
             callback(null,restaurants);
@@ -106,7 +106,7 @@ class DBHelper {
             if (restaurant) {
                 console.log('restaurant stored on DB') ;
                 callback(null,restaurant) ;
-                return tx.complete ;
+                return  ;
             }
             restaurant = await DBHelper.fetchRestaurantFromNetwork() ;
             callback(null,restaurant) ;
@@ -258,7 +258,9 @@ class DBHelper {
      * Restaurant image URL.
      */
     static imageUrlForRestaurant(restaurant) {
-        return `/img/${restaurant.id}.jpg`;
+        // return the optimized images for the current page
+       return window.location.pathname.includes('restaurant.html') ?
+         `/img/${restaurant.id}.jpg`: `/img/smallimg/${restaurant.id}.jpg`
     }
 
     /**
@@ -751,7 +753,7 @@ createRestaurantHTML = restaurant => {
     image.src = DBHelper.imageUrlForRestaurant(restaurant);
     li.append(image);
 
-    const name = document.createElement('h1');
+    const name = document.createElement('h3');
     name.innerHTML = restaurant.name;
     li.append(name);
 

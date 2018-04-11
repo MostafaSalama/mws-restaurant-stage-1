@@ -6,6 +6,7 @@ const concat = require('gulp-concat');
 const imagemin = require('gulp-imagemin');
 const cleanCss = require('gulp-clean-css');
 const gzip = require('gulp-gzip');
+const sourcemaps = require('gulp-sourcemaps')
 // files paths
 const paths = {
     css: 'css/styles.css',
@@ -53,7 +54,9 @@ gulp.task('index-scripts', () => {
 gulp.task('restaurant-scripts', () => {
     return gulp
         .src(['js/*.js', '!js/main.js'])
+        .pipe(sourcemaps.init())
         .pipe(concat('restaurant.js'))
+        .pipe(sourcemaps.write())
         .pipe(gulp.dest('dist'));
 });
 // generating service worker
