@@ -49,11 +49,6 @@ self.addEventListener('install', event => {
     );
 });
 self.addEventListener('fetch', event => {
-    console.log(event.request);
-    if(event.request.url.includes('https://maps.googleapis.com/maps/api/js?key')){
-        event.respondWith(fetch(event.request));
-    }
-    else {
         event.respondWith(
             caches.match(event.request).then(res => {
                 return (
@@ -69,7 +64,6 @@ self.addEventListener('fetch', event => {
                 );
             })
         );
-    }
 
 });
 self.addEventListener('activate', function(event) {

@@ -121,7 +121,7 @@ class DBHelper {
     // fetch restaurant with specified Id form network
     static async fetchRestaurantFromNetwork() {
        try{
-           const my_db = DBHelper.openDB() ;
+           const my_db = await DBHelper.openDB() ;
            const tx = my_db.transaction(DBHelper.OBJECT_STORE_NAME,'readwrite');
            const store = tx.objectStore(DBHelper.OBJECT_STORE_NAME) ;
            const response = await  fetch(`${DBHelper.DATABASE_URL}/${id}`)
